@@ -110,12 +110,16 @@ def readMotor(con, role, username=''):
     for i in range(len(rows)):
         print(f'{i+1} {rows[i]}')
 
-def cariPlatnomor(con, inputan_platnomor, id_pemilik):
+def cariPlatnomor(con, inputan_platnomor, id_pemilik=''):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
 
-    #query sql untuk membaca plat nomor dari database
-    select_query = f'SELECT plat_nomor FROM motor WHERE id_pemilik={id_pemilik}'
+    if id_pemilik=='':
+        #query sql untuk membaca plat nomor dari database
+        select_query = f'SELECT plat_nomor FROM motor'
+    else:
+        #query sql untuk membaca plat nomor dari database
+        select_query = f'SELECT plat_nomor FROM motor WHERE id_pemilik="{id_pemilik}"'
 
     #jalankan query
     cursor.execute(select_query)
@@ -126,8 +130,8 @@ def cariPlatnomor(con, inputan_platnomor, id_pemilik):
     #print semua row
     for plat_nomor in plats:
         #jika plat nomor ditemukan di database
-        if plat_nomor.upper() == (inputan_platnomor.upper(),):
-            return True
+        if plat_nomor == (inputan_platnomor.upper(),):
+            return inputan_platnomor.upper()
 
     #jika plat nomor tidak ditemukan di database    
     return False
@@ -178,10 +182,149 @@ def hapusMotor(con, plat_nomor, id_pemilik):
     #simpan perubahan
     con.commit()
 
-    #print ini
-    print('Berhasil hapus barang.')
     #jeda 2 detik
     sleep(2)
+
+def dashboard(con, loggedin_user, loggedin_role):
+    while loggedin_user != '':
+        #jika yang login adalah pemilik
+        if loggedin_role == 'pemilik':
+            readMotor(con, loggedin_role, loggedin_user)
+
+            print('Aksi:')
+            print('1. Tambah Motor')
+            print('2. Update Motor')
+            print('3. Delete Motor')
+            print('4. Logout')
+            aksi_dipilih = input('Pilih aksi [1-4]: ')
+
+            if aksi_dipilih == '1':
+                inputan_kosong = True
+
+                while inputan_kosong:
+                    inputan_sesuai = False
+
+                    while not inputan_sesuai:
+                        print()
+                        plat_nomor = input('Plat Nomor: ')
+                        merek = input('Merek Motor: ')
+                        tipe = input('Tipe Motor: ')
+                        sewa_perhari = input('Sewa Perhari: Rp')
+                        id_pemilik = loggedin_user
+
+                        if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
+                            inputan_kosong = False
+                            platnomor_sudah_ada = cariPlatnomor(con, plat_nomor)
+                                
+                            if platnomor_sudah_ada:
+                                print('Plat nomor sudah terdaftar!')
+                                sleep(2)
+                            else:
+                                pattern = re.compile(r'^[a-zA-Z][a-zA-Z0-9 ]*[a-zA-Z]$')
+
+                                if not pattern.match(plat_nomor):
+                                        print('Plat motor hanya diawali dan diakhiri oleh huruf dan hanya boleh mengandung huruf, angka, dan spasi!')
+                                        sleep(2)
+                                else:
+                                    if not sewa_perhari.isdigit():
+                                        print('Sewa perhari hanya boleh bilangan integer!')
+                                    else:
+                                        inputan_sesuai = True
+                                        try:
+                                            tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+                                            print('Tambah motor berhasil.')
+                                            print()
+                                        except:
+                                            print('Tambah motor gagal!')
+                                            print()
+                                    sleep(2)
+                        else:
+                            print('Inputan tidak boleh kosong!')
+                            sleep(2)
+            elif aksi_dipilih == '2':
+                platnomor_ketemu = False
+
+                while not platnomor_ketemu:
+                    print()
+                    plat_nomor = input('Masukkan plat nomor: ')
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
+
+                    if platnomor_ketemu:
+                        inputan_kosong = True
+
+                        while inputan_kosong:
+                            inputan_sesuai = False
+
+                            while not inputan_sesuai:
+                                print()
+                                plat_nomor = input('Plat Nomor: ')
+                                merek = input('Merek Motor: ')
+                                tipe = input('Tipe Motor: ')
+                                sewa_perhari = input('Sewa Perhari: Rp')
+                                id_pemilik = loggedin_user
+
+                                if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
+                                    inputan_kosong = False
+                                    platnomor_sudah_ada = cariPlatnomor(con, plat_nomor)
+
+                                    if platnomor_sudah_ada and (plat_nomor.upper()!=platnomor_ketemu):
+                                        print('Plat nomor sudah terdaftar!')
+                                        sleep(2)
+                                    else:
+                                        pattern = re.compile(r'^[a-zA-Z][a-zA-Z0-9 ]*[a-zA-Z]$')
+
+                                        if not pattern.match(plat_nomor):
+                                            print('Plat motor hanya diawali dan diakhiri oleh huruf dan hanya boleh mengandung huruf, angka, dan spasi!')
+                                            sleep(2)
+                                        else:
+                                            if not sewa_perhari.isdigit():
+                                                print('Sewa perhari hanya boleh bilangan integer!')
+                                            else:
+                                                inputan_sesuai = True
+                                                try:
+                                                    updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+                                                    print('Update motor berhasil.')
+                                                    print()
+                                                except:
+                                                    print('Update motor gagal!')
+                                                    print()
+                                            sleep(2)
+                                else:
+                                    print('Inputan tidak boleh kosong!')
+                                    sleep(2)
+                    else:
+                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
+                        sleep(2)
+            elif aksi_dipilih == '3':
+                platnomor_ketemu = False
+
+                while not platnomor_ketemu:
+                    plat_nomor = input('Masukkan plat nomor: ')
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
+
+                    if platnomor_ketemu:
+                        try:
+                            hapusMotor(con, plat_nomor, loggedin_user)
+                            print('Hapus motor berhasil.')
+                            print()
+                        except:
+                            print('Hapus motor gagal!')
+                            print()
+                        sleep(2)
+                    else:
+                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
+                        sleep(2)
+            elif aksi_dipilih == '4':
+                loggedin_user = ''
+                print('Logout berhasil.')
+                print()
+                sleep(2)
+                return True
+            else:
+                pass
+        #jika yang login adalah penyewa
+        else:
+            readMotor(con, loggedin_role, loggedin_user)
 
 def main(con):
     belum_login = True
@@ -189,7 +332,6 @@ def main(con):
     loggedin_role = ''
 
     while belum_login:
-        print()
         print('Menu')
         print('1. Register')
         print('2. Login')
@@ -241,8 +383,10 @@ def main(con):
                                         try:
                                             registrasiPemilik(con, username, password, nik, nama, no_hp)
                                             print('Registrasi pemilik berhasil.')
+                                            print()
                                         except:
                                             print('Registrasi gagal!')
+                                            print()
                                         sleep(2)
                             else:
                                 print('Inputan tidak boleh kosong!')
@@ -282,8 +426,10 @@ def main(con):
                                         try:
                                             registrasiPenyewa(con, username, password, nik, nama, no_hp)
                                             print('Registrasi penyewa berhasil.')
+                                            print()
                                         except:
                                             print('Registrasi gagal!')
+                                            print()
                                         sleep(2)
                             else:
                                 print('Inputan tidak boleh kosong!')
@@ -331,14 +477,15 @@ def main(con):
                                     
                                     if password_benar:
                                         login_berhasil = True
-                                        belum_login = False
                                         loggedin_role = choosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
                                         print()
+                                        sleep(2)
+                                        belum_login = dashboard(con, loggedin_user, loggedin_role)
                                     else:
                                         print('Password salah!')
-                                    sleep(2)
+                                        sleep(2)
                             else:
                                 print('Inputan tidak boleh kosong!')
                                 sleep(2)
@@ -368,14 +515,15 @@ def main(con):
                                     
                                     if password_benar:
                                         login_berhasil = True
-                                        belum_login = False
                                         loggedin_role = choosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
                                         print()
+                                        sleep(2)
+                                        belum_login = dashboard(con, loggedin_user, loggedin_role)
                                     else:
                                         print('Password salah!')
-                                    sleep(2)
+                                        sleep(2)
                             else:
                                 print('Inputan tidak boleh kosong!')
                                 sleep(2)
@@ -386,125 +534,6 @@ def main(con):
                     print('Inputan salah! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
                     sleep(2)
 
-    while loggedin_user != '':
-        #jika yang login adalah pemilik
-        if loggedin_role == 'pemilik':
-            readMotor(con, loggedin_role, loggedin_user)
-
-            print('Aksi:')
-            print('1. Tambah Motor')
-            print('2. Update Motor')
-            print('3. Delete Motor')
-            print('4. Lihat Motor yang direntalkan')
-            print('5. Logout')
-            aksi_dipilih = input('Pilih aksi [1-3]: ')
-
-            if aksi_dipilih == '1':
-                inputan_kosong = True
-
-                while inputan_kosong:
-                    inputan_sesuai = False
-
-                    while not inputan_sesuai:
-                        print()
-                        plat_nomor = input('Plat Nomor: ')
-                        merek = input('Merek Motor: ')
-                        tipe = input('Tipe Motor: ')
-                        sewa_perhari = input('Sewa Perhari: Rp')
-                        id_pemilik = loggedin_user
-
-                        if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
-                            inputan_kosong = False
-
-                            if not sewa_perhari.isdigit():
-                                print('Sewa perhari hanya boleh bilangan integer!')
-                                sleep(2)
-                            else:
-                                platnomor_sudah_ada = cariPlatnomor(con, username, loggedin_user)
-
-                                if platnomor_sudah_ada:
-                                    print('Plat nomor sudah terdaftar!')
-                                    sleep(2)
-                                else:
-                                    inputan_sesuai = True
-                                    try:
-                                        tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
-                                        print('Tambah motor berhasil.')
-                                    except:
-                                        print('Tambah motor gagal!')
-                                    sleep(2)
-                        else:
-                            print('Inputan tidak boleh kosong!')
-                            sleep(2)
-            elif aksi_dipilih == '2':
-                platnomor_ketemu = False
-
-                while not platnomor_ketemu:
-                    plat_nomor = input('Masukkan plat nomor: ')
-                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
-
-                    if platnomor_ketemu:
-                        inputan_kosong = True
-
-                        while inputan_kosong:
-                            inputan_sesuai = False
-
-                            while not inputan_sesuai:
-                                print()
-                                plat_nomor = input('Plat Nomor: ')
-                                merek = input('Merek Motor: ')
-                                tipe = input('Tipe Motor: ')
-                                sewa_perhari = input('Sewa Perhari: Rp')
-                                id_pemilik = loggedin_user
-
-                                if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
-                                    inputan_kosong = False
-
-                                    if not sewa_perhari.isdigit():
-                                        print('Sewa perhari hanya boleh bilangan integer!')
-                                        sleep(2)
-                                    else:
-                                        platnomor_sudah_ada = cariPlatnomor(con, username, loggedin_user)
-
-                                        if platnomor_sudah_ada:
-                                            print('Plat nomor sudah terdaftar!')
-                                            sleep(2)
-                                        else:
-                                            inputan_sesuai = True
-                                            try:
-                                                updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
-                                                print('Update motor berhasil.')
-                                            except:
-                                                print('Update motor gagal!')
-                                            sleep(2)
-                                else:
-                                    print('Inputan tidak boleh kosong!')
-                                    sleep(2)
-                    else:
-                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
-                        sleep(2)
-            elif aksi_dipilih == '3':
-                platnomor_ketemu = False
-
-                while not platnomor_ketemu:
-                    plat_nomor = input('Masukkan plat nomor: ')
-                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
-
-                    if platnomor_ketemu:
-                        try:
-                            hapusMotor(con, plat_nomor, loggedin_user)
-                            print('Hapus motor berhasil.')
-                        except:
-                            print('Hapus motor gagal!')
-                        sleep(2)
-                    else:
-                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
-                        sleep(2)
-            else:
-                pass
-        #jika yang login adalah penyewa
-        else:
-            readMotor(con, loggedin_role, loggedin_user)
 try:
     #membuat koneksi dengan database
     connection = mysql.connector.connect(**db_config)
