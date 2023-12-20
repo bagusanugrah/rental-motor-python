@@ -390,7 +390,7 @@ def main(con):
                                     print('Plat nomor sudah terdaftar!')
                                     sleep(2)
                                 else:
-                                    username_sesuai = True
+                                    inputan_sesuai = True
                                     try:
                                         tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
                                         print('Tambah motor berhasil.')
