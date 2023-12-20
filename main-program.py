@@ -151,10 +151,10 @@ def updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
     #query sql untuk update data di database
-    update_query = 'UPDATE motor SET plat_nomor=%s, merek=%s, tipe=%s, sewa_perhari=%s WHERE id_pemilik=%s'
+    update_query = 'UPDATE motor SET plat_nomor=%s, merek=%s, tipe=%s, sewa_perhari=%s WHERE plat_nomor=%s AND id_pemilik=%s'
 
     #data yang digunakan pada query
-    value = (plat_nomor.upper(), merek, tipe, sewa_perhari, id_pemilik)
+    value = (plat_nomor.upper(), merek, tipe, sewa_perhari, plat_nomor.upper(), id_pemilik)
 
     #masukkan data ke database
     cursor.execute(update_query, value)
