@@ -110,12 +110,12 @@ def readMotor(con, role, username=''):
     for i in range(len(rows)):
         print(f'{i+1} {rows[i]}')
 
-def cariPlatnomor(con, inputan_platnomor):
+def cariPlatnomor(con, inputan_platnomor, id_pemilik):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
 
     #query sql untuk membaca plat nomor dari database
-    select_query = f'SELECT plat_nomor FROM motor'
+    select_query = f'SELECT plat_nomor FROM motor WHERE id_pemilik={id_pemilik}'
 
     #jalankan query
     cursor.execute(select_query)
@@ -161,6 +161,27 @@ def updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik):
 
     #simpan perubahan
     con.commit()
+
+#fungsi untuk hapus data di database
+def hapusMotor(con, plat_nomor, id_pemilik):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk hapus data
+    delete_query = 'DELETE FROM motor WHERE plat_nomor=%s and id_pemilik=%s'
+
+    #id dari data yang akan dihapus
+    value = (plat_nomor, id_pemilik)
+
+    #hapus data
+    cursor.execute(delete_query, value)
+
+    #simpan perubahan
+    con.commit()
+
+    #print ini
+    print('Berhasil hapus barang.')
+    #jeda 2 detik
+    sleep(2)
 
 def main(con):
     belum_login = True
@@ -399,7 +420,7 @@ def main(con):
                                 print('Sewa perhari hanya boleh bilangan integer!')
                                 sleep(2)
                             else:
-                                platnomor_sudah_ada = cariPlatnomor(con, username)
+                                platnomor_sudah_ada = cariPlatnomor(con, username, loggedin_user)
 
                                 if platnomor_sudah_ada:
                                     print('Plat nomor sudah terdaftar!')
@@ -420,7 +441,7 @@ def main(con):
 
                 while not platnomor_ketemu:
                     plat_nomor = input('Masukkan plat nomor: ')
-                    platnomor_ketemu = cariPlatnomor(con, plat_nomor)
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
 
                     if platnomor_ketemu:
                         inputan_kosong = True
@@ -443,7 +464,7 @@ def main(con):
                                         print('Sewa perhari hanya boleh bilangan integer!')
                                         sleep(2)
                                     else:
-                                        platnomor_sudah_ada = cariPlatnomor(con, username)
+                                        platnomor_sudah_ada = cariPlatnomor(con, username, loggedin_user)
 
                                         if platnomor_sudah_ada:
                                             print('Plat nomor sudah terdaftar!')
@@ -463,7 +484,22 @@ def main(con):
                         print(f'Plat nomor {plat_nomor} tidak terdaftar!')
                         sleep(2)
             elif aksi_dipilih == '3':
-                pass
+                platnomor_ketemu = False
+
+                while not platnomor_ketemu:
+                    plat_nomor = input('Masukkan plat nomor: ')
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor, loggedin_user)
+
+                    if platnomor_ketemu:
+                        try:
+                            hapusMotor(con, plat_nomor, loggedin_user)
+                            print('Hapus motor berhasil.')
+                        except:
+                            print('Hapus motor gagal!')
+                        sleep(2)
+                    else:
+                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
+                        sleep(2)
             else:
                 pass
         #jika yang login adalah penyewa
