@@ -126,7 +126,7 @@ def cariPlatnomor(con, inputan_platnomor):
     #print semua row
     for plat_nomor in plats:
         #jika plat nomor ditemukan di database
-        if plat_nomor == (inputan_platnomor,):
+        if plat_nomor.upper() == (inputan_platnomor.upper(),):
             return True
 
     #jika plat nomor tidak ditemukan di database    
@@ -139,10 +139,25 @@ def tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik):
     insert_query = 'INSERT INTO motor (plat_nomor, merek, tipe, sewa_perhari, id_pemilik) VALUES (%s, %s, %s, %s, %s)'
 
     #data yang akan dimasukkan ke database
-    value = (plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+    value = (plat_nomor.upper(), merek, tipe, sewa_perhari, id_pemilik)
 
     #masukkan data ke database
     cursor.execute(insert_query, value)
+
+    #simpan perubahan
+    con.commit()
+
+def updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk update data di database
+    update_query = 'UPDATE motor SET plat_nomor=%s, merek=%s, tipe=%s, sewa_perhari=%s WHERE id_pemilik=%s'
+
+    #data yang digunakan pada query
+    value = (plat_nomor.upper(), merek, tipe, sewa_perhari, id_pemilik)
+
+    #masukkan data ke database
+    cursor.execute(update_query, value)
 
     #simpan perubahan
     con.commit()
@@ -401,7 +416,52 @@ def main(con):
                             print('Inputan tidak boleh kosong!')
                             sleep(2)
             elif aksi_dipilih == '2':
-                pass
+                platnomor_ketemu = False
+
+                while not platnomor_ketemu:
+                    plat_nomor = input('Masukkan plat nomor: ')
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor)
+
+                    if platnomor_ketemu:
+                        inputan_kosong = True
+
+                        while inputan_kosong:
+                            inputan_sesuai = False
+
+                            while not inputan_sesuai:
+                                print()
+                                plat_nomor = input('Plat Nomor: ')
+                                merek = input('Merek Motor: ')
+                                tipe = input('Tipe Motor: ')
+                                sewa_perhari = input('Sewa Perhari: Rp')
+                                id_pemilik = loggedin_user
+
+                                if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
+                                    inputan_kosong = False
+
+                                    if not sewa_perhari.isdigit():
+                                        print('Sewa perhari hanya boleh bilangan integer!')
+                                        sleep(2)
+                                    else:
+                                        platnomor_sudah_ada = cariPlatnomor(con, username)
+
+                                        if platnomor_sudah_ada:
+                                            print('Plat nomor sudah terdaftar!')
+                                            sleep(2)
+                                        else:
+                                            inputan_sesuai = True
+                                            try:
+                                                updateMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+                                                print('Update motor berhasil.')
+                                            except:
+                                                print('Update motor gagal!')
+                                            sleep(2)
+                                else:
+                                    print('Inputan tidak boleh kosong!')
+                                    sleep(2)
+                    else:
+                        print(f'Plat nomor {plat_nomor} tidak terdaftar!')
+                        sleep(2)
             elif aksi_dipilih == '3':
                 pass
             else:
