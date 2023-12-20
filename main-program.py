@@ -84,6 +84,69 @@ def cekPassword(con, role, inputan_username, inputan_password):
     #jika password yang diinputkan user salah    
     return False
 
+#fungsi untuk membaca semua data di database
+def readMotor(con, role, username=''):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #jika yang login adalah pemilik
+    if role == 'pemilik':
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT plat_nomor, merek, tipe, sewa_perhari FROM motor where id_pemilik="{username}"'
+    #jika yang login adalah penyewa
+    else:
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT plat_nomor, merek, tipe, sewa_perhari FROM motor"'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua data ke dalam variabel rows
+    rows = cursor.fetchall()
+
+    print('no (plat_nomor, merek, tipe, sewa_perhari)')
+
+    #print semua row
+    for i in range(len(rows)):
+        print(f'{i+1} {rows[i]}')
+
+def cariPlatnomor(con, inputan_platnomor):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #query sql untuk membaca plat nomor dari database
+    select_query = f'SELECT plat_nomor FROM motor'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua plat nomor ke dalam variabel rows
+    plats = cursor.fetchall()
+
+    #print semua row
+    for plat_nomor in plats:
+        #jika plat nomor ditemukan di database
+        if plat_nomor == (inputan_platnomor,):
+            return True
+
+    #jika plat nomor tidak ditemukan di database    
+    return False
+
+def tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk insert data ke database
+    insert_query = 'INSERT INTO motor (plat_nomor, merek, tipe, sewa_perhari, id_pemilik) VALUES (%s, %s, %s, %s, %s)'
+
+    #data yang akan dimasukkan ke database
+    value = (plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+
+    #masukkan data ke database
+    cursor.execute(insert_query, value)
+
+    #simpan perubahan
+    con.commit()
+
 def main(con):
     belum_login = True
     loggedin_user = ''
@@ -236,6 +299,7 @@ def main(con):
                                         loggedin_role = choosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
+                                        print()
                                     else:
                                         print('Password salah!')
                                     sleep(2)
@@ -272,6 +336,7 @@ def main(con):
                                         loggedin_role = choosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
+                                        print()
                                     else:
                                         print('Password salah!')
                                     sleep(2)
@@ -285,6 +350,65 @@ def main(con):
                     print('Inputan salah! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
                     sleep(2)
 
+    while loggedin_user != '':
+        #jika yang login adalah pemilik
+        if loggedin_role == 'pemilik':
+            readMotor(con, loggedin_role, loggedin_user)
+
+            print('Aksi:')
+            print('1. Tambah Motor')
+            print('2. Update Motor')
+            print('3. Delete Motor')
+            print('4. Lihat Motor yang direntalkan')
+            print('5. Logout')
+            aksi_dipilih = input('Pilih aksi [1-3]: ')
+
+            if aksi_dipilih == '1':
+                inputan_kosong = True
+
+                while inputan_kosong:
+                    inputan_sesuai = False
+
+                    while not inputan_sesuai:
+                        print()
+                        plat_nomor = input('Plat Nomor: ')
+                        merek = input('Merek Motor: ')
+                        tipe = input('Tipe Motor: ')
+                        sewa_perhari = input('Sewa Perhari: Rp')
+                        id_pemilik = loggedin_user
+
+                        if plat_nomor!='' or merek!='' or tipe!='' or sewa_perhari!='':
+                            inputan_kosong = False
+
+                            if not sewa_perhari.isdigit():
+                                print('Sewa perhari hanya boleh bilangan integer!')
+                                sleep(2)
+                            else:
+                                platnomor_sudah_ada = cariPlatnomor(con, username)
+
+                                if platnomor_sudah_ada:
+                                    print('Plat nomor sudah terdaftar!')
+                                    sleep(2)
+                                else:
+                                    username_sesuai = True
+                                    try:
+                                        tambahMotor(con, plat_nomor, merek, tipe, sewa_perhari, id_pemilik)
+                                        print('Tambah motor berhasil.')
+                                    except:
+                                        print('Tambah motor gagal!')
+                                    sleep(2)
+                        else:
+                            print('Inputan tidak boleh kosong!')
+                            sleep(2)
+            elif aksi_dipilih == '2':
+                pass
+            elif aksi_dipilih == '3':
+                pass
+            else:
+                pass
+        #jika yang login adalah penyewa
+        else:
+            readMotor(con, loggedin_role, loggedin_user)
 try:
     #membuat koneksi dengan database
     connection = mysql.connector.connect(**db_config)
