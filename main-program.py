@@ -1,5 +1,8 @@
 import mysql.connector
 import re
+import datetime
+import calendar
+import time
 from time import sleep
 
 #konfigurasi database
@@ -96,7 +99,7 @@ def readMotor(con, role, username=''):
     #jika yang login adalah penyewa
     else:
         #query sql untuk membaca data dari database
-        select_query = f'SELECT plat_nomor, merek, tipe, sewa_perhari FROM motor"'
+        select_query = f'SELECT plat_nomor, merek, tipe, sewa_perhari FROM motor'
 
     #jalankan query
     cursor.execute(select_query)
@@ -184,6 +187,171 @@ def hapusMotor(con, plat_nomor, id_pemilik):
 
     #jeda 2 detik
     sleep(2)
+
+#fungsi untuk membaca semua data di database
+def readPenyewaan(con, role, username=''):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #jika yang login adalah pemilik
+    if role == 'pemilik':
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan where id_pemilik="{username}"'
+    #jika yang login adalah penyewa
+    else:
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan WHERE id_penyewa="{username}"'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua data ke dalam variabel rows
+    rows = cursor.fetchall()
+
+    print('no (id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari)')
+
+    #print semua row
+    for i in range(len(rows)):
+        print(f'{i+1} {rows[i]}')
+
+def cariIdPenyewaanDiPenyewaan(con, inputan_idpenyewaan):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #query sql untuk membaca data dari database
+    select_query = f'SELECT id_penyewaan FROM penyewaan'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua plat nomor ke dalam variabel rows
+    penyewaan_ids = cursor.fetchall()
+
+    #print semua row
+    for id_penyewaan in penyewaan_ids:
+        #jika plat nomor ditemukan di database
+        if id_penyewaan == (inputan_idpenyewaan,):
+            return inputan_idpenyewaan
+
+    #jika plat nomor tidak ditemukan di database    
+    return False
+
+def cariIdPenyewaanDiPengembalian(con, inputan_idpenyewaan):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #query sql untuk membaca data dari database
+    select_query = f'SELECT id_penyewaan FROM pengembalian'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua plat nomor ke dalam variabel rows
+    penyewaan_ids = cursor.fetchall()
+
+    #print semua row
+    for id_penyewaan in penyewaan_ids:
+        #jika plat nomor ditemukan di database
+        if id_penyewaan == (inputan_idpenyewaan,):
+            return inputan_idpenyewaan
+
+    #jika plat nomor tidak ditemukan di database    
+    return False
+
+def getMotorElement(con, inputan_platnomor):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #query sql untuk membaca plat nomor dari database
+    select_query = f'SELECT plat_nomor,merek,tipe,sewa_perhari,id_pemilik FROM motor'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua plat nomor ke dalam variabel rows
+    motors = cursor.fetchall()
+
+    motor_items = []
+    #print semua row
+    for motor in motors:
+        #jika plat nomor ditemukan di database
+        if motor[0] == inputan_platnomor.upper():
+            for item in motor:
+                motor_items.append(item)
+            return motor_items
+
+    #jika plat nomor tidak ditemukan di database    
+    return False
+
+def sewaMotor(con, tgl_penyewaan, plat_nomor, merek_motor, tipe_motor,  sewa_perhari, id_pemilik, id_penyewa):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk insert data ke database
+    insert_query = 'INSERT INTO penyewaan (tgl_penyewaan, plat_nomor, merek_motor, tipe_motor, sewa_perhari, id_pemilik, id_penyewa) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+
+    #data yang akan dimasukkan ke database
+    value = (tgl_penyewaan, plat_nomor.upper(), merek_motor, tipe_motor, sewa_perhari, id_pemilik, id_penyewa)
+
+    #masukkan data ke database
+    cursor.execute(insert_query, value)
+
+    #simpan perubahan
+    con.commit()
+
+def setTglPengembalian(con, id_penyewaan, tgl_pengembalian):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk update data di database
+    update_query = 'UPDATE penyewaan SET tgl_pengembalian=%s WHERE id_penyewaan=%s'
+
+    #data yang digunakan pada query
+    value = (tgl_pengembalian, id_penyewaan)
+
+    #masukkan data ke database
+    cursor.execute(update_query, value)
+
+    #simpan perubahan
+    con.commit()
+
+def getPenyewaanElement(con, id_penyewaan):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #query sql untuk membaca id_penyewaan dari database
+    select_query = f'SELECT id_penyewaan,plat_nomor,tgl_penyewaan FROM penyewaan'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua id_penyewaan ke dalam variabel rows
+    penyewaans = cursor.fetchall()
+
+    penyewaan_items = []
+    #print semua row
+    for penyewaan in penyewaans:
+        #jika id_penyewaan ditemukan di database
+        if penyewaan[0] == id_penyewaan:
+            for item in penyewaan:
+                penyewaan_items.append(item)
+            return penyewaan_items
+
+    #jika plat nomor tidak ditemukan di database    
+    return False
+
+def kembalikanMotor(con, id_penyewaan, plat_nomor, tgl_penyewaan, tgl_pengembalian):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+    #query sql untuk insert data ke database
+    insert_query = 'INSERT INTO pengembalian (tgl_penyewaan, tgl_pengembalian, plat_nomor, id_penyewaan) VALUES (%s, %s, %s, %s)'
+
+    #data yang akan dimasukkan ke database
+    value = (tgl_penyewaan, tgl_pengembalian, plat_nomor.upper(), id_penyewaan)
+
+    #masukkan data ke database
+    cursor.execute(insert_query, value)
+
+    #simpan perubahan
+    con.commit()
 
 def dashboard(con, loggedin_user, loggedin_role):
     while loggedin_user != '':
@@ -321,10 +489,62 @@ def dashboard(con, loggedin_user, loggedin_role):
                 sleep(2)
                 return True
             else:
-                pass
+                print('Inputan salah! Masukkan angka 1-4!')
+                print()
+                sleep(2)
         #jika yang login adalah penyewa
         else:
-            readMotor(con, loggedin_role, loggedin_user)
+            while loggedin_user !='':
+                print('Daftar Motor')
+                readMotor(con, loggedin_role, loggedin_user)
+                print()
+                print('Transaksi Penyewaan')
+                readPenyewaan(con, loggedin_role, loggedin_user)
+                print()
+
+                print('Aksi:')
+                print('1. Sewa Motor')
+                print('2. Logout')
+                aksi_dipilih = input('Pilih aksi [1/2]: ')
+
+                if aksi_dipilih == '1':
+                    print()
+                    plat_nomor = input('Plat Nomor: ')
+                    
+                    platnomor_ketemu = cariPlatnomor(con, plat_nomor)
+
+                    if platnomor_ketemu:
+                        motor_elements = getMotorElement(con, plat_nomor)
+                        merek = motor_elements[1]
+                        tipe = motor_elements[2]
+                        sewa_perhari = motor_elements[3]
+                        id_pemilik = motor_elements[4]
+
+                        try:
+                            current_GMT = time.gmtime()
+                            ts = calendar.timegm(current_GMT)
+                            date_time = datetime.datetime.fromtimestamp(ts)
+                            str_date_time = date_time.strftime("%Y-%m-%d")
+
+                            sewaMotor(con, str_date_time, plat_nomor, merek, tipe, sewa_perhari, id_pemilik, loggedin_user)
+                            print('Sewa motor berhasil!')
+                            print()
+                            sleep(2)
+                        except:
+                            print('Sewa motor gagal!')
+                            print()
+                            sleep(2)
+                elif aksi_dipilih == '2':
+                    loggedin_user = ''
+                    print('Logout berhasil.')
+                    print()
+                    sleep(2)
+                    return True
+                else:
+                    print('Inputan salah! Masukkan angka 1 atau 2!')
+                    print()
+                    sleep(2)
+
 
 def main(con):
     belum_login = True
