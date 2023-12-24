@@ -230,7 +230,7 @@ def cariIdPenyewaanDiPenyewaan(con, inputan_idpenyewaan):
     #print semua row
     for id_penyewaan in penyewaan_ids:
         #jika plat nomor ditemukan di database
-        if id_penyewaan == (inputan_idpenyewaan,):
+        if f'{id_penyewaan}' == f'({inputan_idpenyewaan},)':
             return inputan_idpenyewaan
 
     #jika plat nomor tidak ditemukan di database    
@@ -252,7 +252,7 @@ def cariIdPenyewaanDiPengembalian(con, inputan_idpenyewaan):
     #print semua row
     for id_penyewaan in penyewaan_ids:
         #jika plat nomor ditemukan di database
-        if id_penyewaan == (inputan_idpenyewaan,):
+        if f'{id_penyewaan}' == f'({inputan_idpenyewaan},)':
             return inputan_idpenyewaan
 
     #jika plat nomor tidak ditemukan di database    
@@ -330,7 +330,7 @@ def getPenyewaanElements(con, id_penyewaan):
     #print semua row
     for penyewaan in penyewaans:
         #jika id_penyewaan ditemukan di database
-        if penyewaan[0] == id_penyewaan:
+        if f'{penyewaan[0]}' == f'{id_penyewaan}':
             for item in penyewaan:
                 penyewaan_items.append(item)
             return penyewaan_items
@@ -357,14 +357,20 @@ def dashboard(con, loggedin_user, loggedin_role):
     while loggedin_user != '':
         #jika yang login adalah pemilik
         if loggedin_role == 'pemilik':
+            print('Daftar Motor')
             readMotor(con, loggedin_role, loggedin_user)
+            print()
+            print('Transaksi Penyewaan')
+            readPenyewaan(con, loggedin_role, loggedin_user)
+            print()
 
             print('Aksi:')
             print('1. Tambah Motor')
             print('2. Update Motor')
             print('3. Delete Motor')
-            print('4. Logout')
-            aksi_dipilih = input('Pilih aksi [1-4]: ')
+            print('4. Kembalikan Motor')
+            print('5. Logout')
+            aksi_dipilih = input('Pilih aksi [1-5]: ')
 
             if aksi_dipilih == '1':
                 inputan_kosong = True
@@ -483,13 +489,41 @@ def dashboard(con, loggedin_user, loggedin_role):
                         print(f'Plat nomor {plat_nomor} tidak terdaftar!')
                         sleep(2)
             elif aksi_dipilih == '4':
+                print()
+                id_penyewaan = input('Masukkan id penyewaan: ')
+
+                if cariIdPenyewaanDiPenyewaan(con, id_penyewaan) and (not cariIdPenyewaanDiPengembalian(con, id_penyewaan)):
+                    penyewaan_elements = getPenyewaanElements(con, id_penyewaan)
+                    plat_nomor = penyewaan_elements[1]
+                    tgl_penyewaan = penyewaan_elements[2]
+
+                    try:
+                        current_GMT = time.gmtime()
+                        ts = calendar.timegm(current_GMT)
+                        date_time = datetime.datetime.fromtimestamp(ts)
+                        str_date_time = date_time.strftime("%Y-%m-%d")
+
+                        setTglPengembalian(con, id_penyewaan, str_date_time)
+                        kembalikanMotor(con, id_penyewaan, plat_nomor, tgl_penyewaan, str_date_time)
+                        print('Motor berhasil dikembalikan!')
+                        print()
+                        sleep(2)
+                    except:
+                        print('Motor gagal dikembalikan!')
+                        print()
+                        sleep(2)
+                else:
+                    print('Id penyewaan tidak ketemu atau motor sudah dikembalikan!')
+                    print()
+                    sleep(2)
+            elif aksi_dipilih == '5':
                 loggedin_user = ''
                 print('Logout berhasil.')
                 print()
                 sleep(2)
                 return True
             else:
-                print('Inputan salah! Masukkan angka 1-4!')
+                print('Inputan salah! Masukkan angka 1-5!')
                 print()
                 sleep(2)
         #jika yang login adalah penyewa
