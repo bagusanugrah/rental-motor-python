@@ -592,8 +592,8 @@ def main(con):
                                     print('Username hanya boleh berupa huruf kecil, angka, underscore, dan titik!')
                                     sleep(2)
                                 else:
-                                    choosen_role = 'pemilik'
-                                    username_sudah_ada = cariUsername(con, choosen_role, username)
+                                    chosen_role = 'pemilik'
+                                    username_sudah_ada = cariUsername(con, chosen_role, username)
 
                                     if username_sudah_ada:
                                         print('Username sudah terdaftar!')
@@ -635,8 +635,8 @@ def main(con):
                                     print('Username hanya boleh berupa huruf kecil, angka, underscore, dan titik!')
                                     sleep(2)
                                 else:
-                                    choosen_role = 'penyewa'
-                                    username_sudah_ada = cariUsername(con, choosen_role, username)
+                                    chosen_role = 'penyewa'
+                                    username_sudah_ada = cariUsername(con, chosen_role, username)
 
                                     if username_sudah_ada:
                                         print('Username sudah terdaftar!')
@@ -686,18 +686,18 @@ def main(con):
 
                             if username!='' or password!='':
                                 inputan_kosong = False
-                                choosen_role = 'pemilik'
-                                username_ditemukan = cariUsername(con, choosen_role, username)
+                                chosen_role = 'pemilik'
+                                username_ditemukan = cariUsername(con, chosen_role, username)
 
                                 if not username_ditemukan:
                                     print(f'Username {username} belum terdaftar!')
                                     sleep(2)
                                 else:
-                                    password_benar = cekPassword(con, choosen_role, username, password)
+                                    password_benar = cekPassword(con, chosen_role, username, password)
                                     
                                     if password_benar:
                                         login_berhasil = True
-                                        loggedin_role = choosen_role
+                                        loggedin_role = chosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
                                         print()
@@ -724,18 +724,18 @@ def main(con):
 
                             if username!='' or password!='':
                                 inputan_kosong = False
-                                choosen_role = 'penyewa'
-                                username_ditemukan = cariUsername(con, choosen_role, username)
+                                chosen_role = 'penyewa'
+                                username_ditemukan = cariUsername(con, chosen_role, username)
 
                                 if not username_ditemukan:
                                     print(f'Username {username} belum terdaftar!')
                                     sleep(2)
                                 else:
-                                    password_benar = cekPassword(con, choosen_role, username, password)
+                                    password_benar = cekPassword(con, chosen_role, username, password)
                                     
                                     if password_benar:
                                         login_berhasil = True
-                                        loggedin_role = choosen_role
+                                        loggedin_role = chosen_role
                                         loggedin_user = username
                                         print('Berhasil Login.')
                                         print()
