@@ -3,6 +3,7 @@ import re
 import datetime
 import calendar
 import time
+import pandas as pd
 from time import sleep
 
 #konfigurasi database
@@ -107,11 +108,21 @@ def readMotor(con, role, username=''):
     #simpan semua data ke dalam variabel rows
     rows = cursor.fetchall()
 
-    print('no (plat_nomor, merek, tipe, sewa_perhari)')
+    motor_dict = {
+        'Plat Nomor': [],
+        'Merek': [],
+        'Tipe': [],
+        'Sewa Perhari': []
+    }
 
-    #print semua row
+    #masukkan semua data motor ke dictionary motor_dict
     for i in range(len(rows)):
-        print(f'{i+1} {rows[i]}')
+        motor_dict['Plat Nomor'].append(rows[i][0])
+        motor_dict['Merek'].append(rows[i][1])
+        motor_dict['Tipe'].append(rows[i][2])
+        motor_dict['Sewa Perhari'].append(rows[i][3])
+
+    print(pd.DataFrame(motor_dict))
 
 def cariPlatnomor(con, inputan_platnomor, id_pemilik=''):
     #membuat cursor untuk berinteraksi dengan database
@@ -208,11 +219,29 @@ def readPenyewaan(con, role, username=''):
     #simpan semua data ke dalam variabel rows
     rows = cursor.fetchall()
 
-    print('no (id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari)')
+    penyewaan_dict = {
+        'Id Penyewaan': [],
+        'Tgl Penyewaan': [],
+        'Tgl Pengembalian': [],
+        'Plat Nomor': [],
+        'Merek Motor': [],
+        'Tipe Motor': [],
+        'Sewa Perhari': [],
+        'Biaya': []
+    }
 
-    #print semua row
+    #masukkan semua data penyewaan ke dictionary penyewaan_dict
     for i in range(len(rows)):
-        print(f'{i+1} {rows[i]}')
+        penyewaan_dict['Id Penyewaan'].append(rows[i][0])
+        penyewaan_dict['Tgl Penyewaan'].append(rows[i][1])
+        penyewaan_dict['Tgl Pengembalian'].append(rows[i][2])
+        penyewaan_dict['Plat Nomor'].append(rows[i][3])
+        penyewaan_dict['Merek Motor'].append(rows[i][4])
+        penyewaan_dict['Tipe Motor'].append(rows[i][5])
+        penyewaan_dict['Sewa Perhari'].append(rows[i][6])
+        penyewaan_dict['Biaya'].append('-')
+
+    print(pd.DataFrame(penyewaan_dict))
 
 def cariIdPenyewaanDiPenyewaan(con, inputan_idpenyewaan):
     #membuat cursor untuk berinteraksi dengan database
