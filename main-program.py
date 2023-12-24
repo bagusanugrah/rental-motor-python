@@ -258,7 +258,7 @@ def cariIdPenyewaanDiPengembalian(con, inputan_idpenyewaan):
     #jika plat nomor tidak ditemukan di database    
     return False
 
-def getMotorElement(con, inputan_platnomor):
+def getMotorElements(con, inputan_platnomor):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
 
@@ -313,7 +313,7 @@ def setTglPengembalian(con, id_penyewaan, tgl_pengembalian):
     #simpan perubahan
     con.commit()
 
-def getPenyewaanElement(con, id_penyewaan):
+def getPenyewaanElements(con, id_penyewaan):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
 
@@ -514,7 +514,7 @@ def dashboard(con, loggedin_user, loggedin_role):
                     platnomor_ketemu = cariPlatnomor(con, plat_nomor)
 
                     if platnomor_ketemu:
-                        motor_elements = getMotorElement(con, plat_nomor)
+                        motor_elements = getMotorElements(con, plat_nomor)
                         merek = motor_elements[1]
                         tipe = motor_elements[2]
                         sewa_perhari = motor_elements[3]
