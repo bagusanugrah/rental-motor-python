@@ -4,6 +4,7 @@ import datetime
 import calendar
 import time
 import pandas as pd
+import numpy as np
 from time import sleep
 
 #konfigurasi database
@@ -240,6 +241,17 @@ def readPenyewaan(con, role, username=''):
         penyewaan_dict['Tipe Motor'].append(rows[i][5])
         penyewaan_dict['Sewa Perhari'].append(rows[i][6])
         penyewaan_dict['Biaya'].append('-')
+
+    for i in range(len(rows)):
+        if penyewaan_dict['Tgl Pengembalian'][i]:
+            tgl_penyewaan = penyewaan_dict['Tgl Penyewaan'][i]
+            tgl_pengembalian = penyewaan_dict['Tgl Pengembalian'][i]
+            total_hari = int((np.datetime64(tgl_pengembalian) - np.datetime64(tgl_penyewaan))/np.timedelta64(1,'D'))
+            if total_hari<1:
+                biaya = penyewaan_dict['Sewa Perhari'][i]
+            else:
+                biaya = total_hari * penyewaan_dict['Sewa Perhari'][i]
+            penyewaan_dict['Biaya'][i] = biaya
 
     print(pd.DataFrame(penyewaan_dict))
 
