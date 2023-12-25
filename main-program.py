@@ -5,6 +5,7 @@ import calendar
 import time
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from time import sleep
 
 #konfigurasi database
@@ -255,6 +256,48 @@ def readPenyewaan(con, role, username=''):
 
     print(pd.DataFrame(penyewaan_dict))
 
+#fungsi untuk membaca semua data di database
+def showTop3Rented(con, role, username=''):
+    #membuat cursor untuk berinteraksi dengan database
+    cursor = con.cursor()
+
+    #jika yang login adalah pemilik
+    if role == 'pemilik':
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan where id_pemilik="{username}"'
+    #jika yang login adalah penyewa
+    else:
+        #query sql untuk membaca data dari database
+        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan'
+
+    #jalankan query
+    cursor.execute(select_query)
+
+    #simpan semua data ke dalam variabel rows
+    rows = cursor.fetchall()
+
+    penyewaan_dict = {
+        'Plat Nomor': [],
+    }
+
+    #masukkan semua data penyewaan ke dictionary penyewaan_dict
+    for i in range(len(rows)):
+        penyewaan_dict['Plat Nomor'].append(rows[i][3])
+
+    df = pd.DataFrame(penyewaan_dict)
+    # Menghitung frekuensi plat nomor
+    frequencies = df['Plat Nomor'].value_counts()
+
+    # Mengambil dua plat nomor paling sering digunakan
+    top_two_plates = frequencies.head(3)
+
+    # Membuat grafik batang
+    plt.bar(top_two_plates.index, top_two_plates.values)
+    plt.xlabel('Motor')
+    plt.ylabel('Frekuensi')
+    plt.title('Top 3 Motor Paling Sering Disewa')
+    plt.show()
+
 def cariIdPenyewaanDiPenyewaan(con, inputan_idpenyewaan):
     #membuat cursor untuk berinteraksi dengan database
     cursor = con.cursor()
@@ -410,7 +453,8 @@ def dashboard(con, loggedin_user, loggedin_role):
             print('2. Update Motor')
             print('3. Delete Motor')
             print('4. Kembalikan Motor')
-            print('5. Logout')
+            print('5. Tampilkan motor yang paling sering disewa')
+            print('6. Logout')
             aksi_dipilih = input('Pilih aksi [1-5]: ')
 
             if aksi_dipilih == '1':
@@ -558,6 +602,8 @@ def dashboard(con, loggedin_user, loggedin_role):
                     print()
                     sleep(2)
             elif aksi_dipilih == '5':
+                showTop3Rented(con, loggedin_role, loggedin_user)
+            elif aksi_dipilih == '6':
                 loggedin_user = ''
                 print('Logout berhasil.')
                 print()
@@ -579,7 +625,8 @@ def dashboard(con, loggedin_user, loggedin_role):
 
                 print('Aksi:')
                 print('1. Sewa Motor')
-                print('2. Logout')
+                print('2. Tampilkan motor yang paling sering disewa')
+                print('3. Logout')
                 aksi_dipilih = input('Pilih aksi [1/2]: ')
 
                 if aksi_dipilih == '1':
@@ -610,6 +657,8 @@ def dashboard(con, loggedin_user, loggedin_role):
                             print()
                             sleep(2)
                 elif aksi_dipilih == '2':
+                    showTop3Rented(con, loggedin_role)
+                elif aksi_dipilih == '3':
                     loggedin_user = ''
                     print('Logout berhasil.')
                     print()
