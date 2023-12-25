@@ -679,6 +679,7 @@ def main(con):
         print('Menu')
         print('1. Register')
         print('2. Login')
+        print('3. Hentikan Program')
         menu_dipilih = input('Pilih menu [1/2]: ')
 
         if menu_dipilih == '1':
@@ -877,7 +878,14 @@ def main(con):
                 else:
                     print('Inputan salah! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
                     sleep(2)
-
+        elif menu_dipilih == '3':
+            belum_login = False
+            print('Program dihentikan...')
+            sleep(2)
+        else:
+            print('Inputan salah! Masukkan angka 1/2/3')
+            print()
+            sleep(2)
 try:
     #membuat koneksi dengan database
     connection = mysql.connector.connect(**db_config)
