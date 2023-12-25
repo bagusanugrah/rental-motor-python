@@ -692,6 +692,7 @@ def main(con):
                 print('Role')
                 print('1. Pemilik')
                 print('2. Penyewa')
+                print('0. Kembali')
                 role = input('Pilih role [1/2]: ')
 
                 if role == '1':
@@ -779,11 +780,13 @@ def main(con):
                             else:
                                 print('Inputan tidak boleh kosong!')
                                 sleep(2)
+                elif role == '0':
+                    role_dipilih = True
                 elif role == '':
-                    print('Inputan role tidak boleh kosong! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
+                    print('Inputan role tidak boleh kosong! Masukkan 1 untuk pemilik, 2 untuk penyewa, atau 0 untuk kembali.')
                     sleep(2)
                 else:
-                    print('Inputan salah! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
+                    print('Inputan salah! Masukkan 1 untuk pemilik, 2 untuk penyewa, atau 0 untuk kembali.')
                     sleep(2)
         elif menu_dipilih == '2':
             role_dipilih = False
@@ -795,6 +798,7 @@ def main(con):
                 print('Role')
                 print('1. Pemilik')
                 print('2. Penyewa')
+                print('0. Kembali')
                 role = input('Pilih role [1/2]: ')
 
                 if role == '1':
@@ -872,11 +876,13 @@ def main(con):
                             else:
                                 print('Inputan tidak boleh kosong!')
                                 sleep(2)
+                elif role == '0':
+                    role_dipilih = True
                 elif role == '':
-                    print('Inputan role tidak boleh kosong! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
+                    print('Inputan role tidak boleh kosong! Masukkan 1 untuk pemilik, 2 untuk penyewa, atau 0 untuk kembali.')
                     sleep(2)
                 else:
-                    print('Inputan salah! Masukkan 1 untuk pemilik dan 2 untuk penyewa.')
+                    print('Inputan salah! Masukkan 1 untuk pemilik, 2 untuk penyewa, atau 0 untuk kembali.')
                     sleep(2)
         elif menu_dipilih == '3':
             belum_login = False
