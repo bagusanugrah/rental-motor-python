@@ -315,7 +315,7 @@ def showTop3Rented(con, role, username=''):
     #hitung frekuensi plat nomor
     frequencies = df['Plat Nomor'].value_counts()
 
-    #ambil dua plat nomor yang paling sering digunakan
+    #ambil tiga plat nomor dari motor yang paling sering disewa
     top_two_plates = frequencies.head(3)
 
     #buat grafik batang
