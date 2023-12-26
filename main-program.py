@@ -289,11 +289,11 @@ def showTop3Rented(con, role, username=''):
     #jika yang login adalah pemilik
     if role == 'pemilik':
         #query sql untuk membaca semua data penyewaan milik pemilik
-        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan where id_pemilik="{username}"'
+        select_query = f'SELECT plat_nomor FROM penyewaan where id_pemilik="{username}"'
     #jika yang login adalah penyewa
     else:
         #query sql untuk membaca semua data penyewaan
-        select_query = f'SELECT id_penyewaan, tgl_penyewaan, tgl_pengembalian, plat_nomor, merek_motor, tipe_motor, sewa_perhari FROM penyewaan'
+        select_query = f'SELECT plat_nomor FROM penyewaan'
 
     #jalankan query
     cursor.execute(select_query)
@@ -308,7 +308,7 @@ def showTop3Rented(con, role, username=''):
 
     #masukkan semua plat nomor ke dictionary penyewaan_dict
     for i in range(len(rows)):
-        penyewaan_dict['Plat Nomor'].append(rows[i][3])
+        penyewaan_dict['Plat Nomor'].append(rows[i][0])
 
     #buat dataframe dari dictionary penyewaan_dict
     df = pd.DataFrame(penyewaan_dict)
