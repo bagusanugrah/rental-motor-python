@@ -1063,6 +1063,8 @@ def main(con):
                 elif role == '0':
                     #kembali ke menu sebelumnya
                     role_dipilih = True
+                    #buat baris baru
+                    print()
                 #jika inputan role kosong
                 elif role == '':
                     #print ini
@@ -1237,6 +1239,8 @@ def main(con):
                 elif role == '0':
                     #kembali ke menu sebelumnya
                     role_dipilih = True
+                    #buat baris baru
+                    print()
                 #jika inputan role kosong
                 elif role == '':
                     #print ini
