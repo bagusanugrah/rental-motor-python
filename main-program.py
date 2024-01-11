@@ -804,7 +804,7 @@ def dashboard(con, loggedin_user, loggedin_role):
                 print('2. Tampilkan motor yang paling sering disewa')
                 print('3. Logout')
                 #inputan aksi
-                aksi_dipilih = input('Pilih aksi [1/2]: ')
+                aksi_dipilih = input('Pilih aksi [1/2/3]: ')
 
                 #jika aksi yang dipilih adalah sewa motor
                 if aksi_dipilih == '1':
@@ -891,7 +891,7 @@ def main(con):
         print('2. Login')
         print('3. Hentikan Program')
         #inputan menu
-        menu_dipilih = input('Pilih menu [1/2]: ')
+        menu_dipilih = input('Pilih menu [1/2/3]: ')
 
         #jika menu yang dipilih adalah register
         if menu_dipilih == '1':
@@ -911,7 +911,7 @@ def main(con):
                 print('2. Penyewa')
                 print('0. Kembali')
                 #inputan role
-                role = input('Pilih role [1/2]: ')
+                role = input('Pilih role [1/2/0]: ')
 
                 #jika role yang dipilih adalah pemilik
                 if role == '1':
@@ -1094,7 +1094,7 @@ def main(con):
                 print('2. Penyewa')
                 print('0. Kembali')
                 #inputan role
-                role = input('Pilih role [1/2]: ')
+                role = input('Pilih role [1/2/0]: ')
 
                 #jika role yang dipilih adalah pemilik
                 if role == '1':
