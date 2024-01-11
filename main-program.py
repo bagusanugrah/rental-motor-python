@@ -616,7 +616,6 @@ def dashboard(con, loggedin_user, loggedin_role):
                                 #buat baris baru
                                 print()
                                 #inputkan informasi motor yang ingin diperbarui
-                                plat_nomor = input('Plat Nomor: ')
                                 merek = input('Merek Motor: ')
                                 tipe = input('Tipe Motor: ')
                                 sewa_perhari = input('Sewa Perhari: Rp')
